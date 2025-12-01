@@ -3,14 +3,20 @@ import { AppController } from './app.update';
 import { AppService } from './app.service';
 import { TelegrafModule } from 'nestjs-telegraf';
 import LocalSession from 'telegraf-session-local';
-import { BOT_TOKEN } from 'config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
 @Module({
   imports: [
-    TelegrafModule.forRoot({
-      middlewares: [
-        new LocalSession({ database: 'session_db.json' }).middleware(),
-      ],
-      token: BOT_TOKEN,
+    DatabaseModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    TelegrafModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        middlewares: [
+          new LocalSession({ database: 'session_db.json' }).middleware(),
+        ],
+        token: config.getOrThrow('BOT_TOKEN'),
+      }),
     }),
   ],
   providers: [AppService, AppController],
