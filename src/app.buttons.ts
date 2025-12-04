@@ -1,7 +1,7 @@
 import { Markup } from 'telegraf';
 
 export function actionButtons() {
-  return Markup.inlineKeyboard(
+  return Markup.keyboard(
     [
       Markup.button.callback('Todo list 📋', 'list'),
       Markup.button.callback('Create ➕', 'create'),

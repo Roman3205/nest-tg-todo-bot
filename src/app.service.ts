@@ -5,7 +5,7 @@ import { DatabaseService } from 'src/database/database.service';
 export class AppService {
   constructor(private readonly db: DatabaseService) {}
 
-  async createTask(title: string, chatId: number) {
+  async createTask(title: string, chatId: string) {
     await this.db.task.create({
       data: {
         title,
@@ -15,12 +15,11 @@ export class AppService {
     return this.findAll(chatId);
   }
 
-  findAll(chatId: number, withCompleted?: boolean) {
-    const completed = withCompleted == false ? false : true
-    return this.db.task.findMany({ where: { chatId: chatId, isCompleted: completed } });
+  findAll(chatId: string, withCompleted?: boolean) {
+    return this.db.task.findMany({ where: { chatId: chatId, isCompleted: withCompleted } });
   }
 
-  async doneTask(message: string, chatId: number) {
+  async doneTask(message: string, chatId: string) {
     await this.db.task.updateMany({
       where: {
         title: message,
@@ -28,6 +27,17 @@ export class AppService {
       },
       data: {
         isCompleted: true,
+      },
+      limit: 1,
+    });
+    return this.findAll(chatId);
+  }
+
+  async deleteTask(message: string, chatId: string) {
+    await this.db.task.deleteMany({
+      where: {
+        title: message,
+        chatId,
       },
       limit: 1,
     });
